@@ -1,6 +1,7 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { faker } = require('@faker-js/faker');
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
@@ -33,6 +34,8 @@ function generateMessages() {
 
     return arr;
 }
+
+app.use(cors());
 
 // Эндпоинт /messages/unread
 app.get('/messages/unread', (req, res) => {
