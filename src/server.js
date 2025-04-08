@@ -6,49 +6,34 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 
-const randomEmail = faker.internet.email();
-const subject = faker.lorem.sentence();
-const emailBody = faker.lorem.paragraph();
-const sentDate = faker.date.recent(365);
-const randomNumber = faker.number.int( { min: 1, max: 5} );
+app.use(cors());
 
-const receivedDate = faker.date.soon({ 
-    days: 7, 
-    refDate: sentDate 
-});
-
+// Генерация сообщений
 function generateMessages() {
+    const randomNumber = faker.number.int({ min: 1, max: 3 });
     let arr = [];
-    const numberOfMessages = randomNumber;
-    const msg = {
-        "id": uuidv4(),
-        "from": randomEmail,
-        "subject": subject,
-        "body": emailBody,
-        "received": receivedDate
-    };
-
-    for (let index = 0; index < numberOfMessages; index++) {
-        arr.push(msg);
-    };
-
+    
+    for (let index = 0; index < randomNumber; index++) {
+        arr.push({
+            "id": uuidv4(),
+            "from": faker.internet.email(),  // Генерируем новый email для каждого сообщения
+            "subject": faker.lorem.sentence(),
+            "body": faker.lorem.paragraph(),
+            "received": faker.date.recent(7).getTime() / 1000  // Unix timestamp в секундах
+        });
+    }
     return arr;
 }
 
-app.use(cors());
-
-// Эндпоинт /messages/unread
 app.get('/messages/unread', (req, res) => {
-    const msgs = {
+    const response = {
         "status": "ok",
-        "timestamp": sentDate,
+        "timestamp": Math.floor(Date.now() / 1000),  // Текущий Unix timestamp в секундах
         "messages": generateMessages()
-    }
-
-    res.send(msgs);
+    };
+    res.send(response);
 });
 
-// Запуск сервера
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running at http://localhost:${port}`);
 });
